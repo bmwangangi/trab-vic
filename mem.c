@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <stdint.h> // Include <stdint.h> for SIZE_MAX
 #include "mem.h"
 
 #define PAGE_SIZE sysconf(_SC_PAGESIZE)
@@ -11,8 +12,9 @@ struct mem_block {
     struct mem_block *next;
 };
 
+int m_error = 0; // Remove static declaration of m_error
+
 static struct mem_block *free_list = NULL;
-static int m_error = 0;
 
 int mem_init(int size_of_region) {
     if (free_list != NULL || size_of_region <= 0) {
