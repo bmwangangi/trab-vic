@@ -149,6 +149,7 @@ void mem_dump() {
 }
 
 
+
 int main() {
     /*Initialize memory allocator*/
     int init_result = mem_init(4096); /*Initialize with 4KB of memory*/
