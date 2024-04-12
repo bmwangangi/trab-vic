@@ -131,27 +131,35 @@ void mem_dump() {
 
 int main() {
     // Example usage
-    if (mem_init(4096) == -1) {
+    if (mem_init(8192) == -1) { // Increase memory region size to 8192 bytes
         printf("Memory initialization failed!\n");
         return 1;
     }
 
     void *ptr1 = mem_alloc(16, M_FIRSTFIT);
     if (ptr1 == NULL) {
-        printf("Memory allocation failed!\n");
+        printf("Memory allocation failed for ptr1!\n");
         return 1;
     }
 
+    printf("Memory allocated for ptr1: %p\n", ptr1);
+
     void *ptr2 = mem_alloc(4048, M_FIRSTFIT);
     if (ptr2 == NULL) {
-        printf("Memory allocation failed!\n");
+        printf("Memory allocation failed for ptr2!\n");
         return 1;
     }
+
+    printf("Memory allocated for ptr2: %p\n", ptr2);
 
     mem_dump();
 
     mem_free(ptr1);
-    printf("Memory dump after freeing ptr1:\n");
+    printf("Memory freed for ptr1\n");
+    mem_dump();
+
+    mem_free(ptr2);
+    printf("Memory freed for ptr2\n");
     mem_dump();
 
     return 0;
