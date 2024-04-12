@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <stdint.h> // Include <stdint.h> for SIZE_MAX
+#include <stdint.h>
 #include "mem.h"
 
 #define PAGE_SIZE sysconf(_SC_PAGESIZE)
@@ -12,8 +12,7 @@ struct mem_block {
     struct mem_block *next;
 };
 
-int m_error = 0; // Remove static declaration of m_error
-
+int m_error = 0;
 static struct mem_block *free_list = NULL;
 
 int mem_init(int size_of_region) {
@@ -22,10 +21,7 @@ int mem_init(int size_of_region) {
         return -1;
     }
 
-    // Round up the size_of_region to the nearest multiple of PAGE_SIZE
     size_of_region = ((size_of_region + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE;
-
-    // Allocate memory region using mmap()
     free_list = mmap(NULL, size_of_region, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     if (free_list == MAP_FAILED) {
@@ -33,7 +29,6 @@ int mem_init(int size_of_region) {
         return -1;
     }
 
-    // Initialize free_list
     free_list->size = size_of_region - sizeof(struct mem_block);
     free_list->next = NULL;
 
@@ -46,7 +41,6 @@ void *mem_alloc(int size, int style) {
         return NULL;
     }
 
-    // Align size to multiple of 8
     size = (size + 7) / 8 * 8;
 
     struct mem_block *prev = NULL;
@@ -131,7 +125,7 @@ void mem_dump() {
 
 int main() {
     // Example usage
-    if (mem_init(8192) == -1) { // Increase memory region size to 8192 bytes
+    if (mem_init(8192) == -1) {
         printf("Memory initialization failed!\n");
         return 1;
     }
