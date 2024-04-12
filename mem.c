@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <errno.h>
 #include "mem.h"
 
 // Error code variable
