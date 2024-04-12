@@ -129,21 +129,21 @@ void mem_dump() {
     printf("Memory dump after allocation:\n");
     struct mem_block *curr = free_list;
     while (curr != NULL) {
-        printf("[size: %d bytes]\n", curr->size);
+        printf("[size: %zu bytes]\n", curr->size);
         curr = curr->next;
     }
 
     printf("Free memory dump after freeing ptr1:\n");
     curr = free_list;
     while (curr != NULL) {
-        printf("[size: %d bytes]\n", curr->size);
+        printf("[size: %zu bytes]\n", curr->size);
         curr = curr->next;
     }
 
     printf("Final memory dump:\n");
     curr = free_list;
     while (curr != NULL) {
-        printf("[size: %d bytes]\n", curr->size);
+        printf("[size: %zu bytes]\n", curr->size);
         curr = curr->next;
     }
 }
