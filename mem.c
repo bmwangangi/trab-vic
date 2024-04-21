@@ -4,38 +4,38 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-/*Memory error codes*/
+/* Memory error codes */
 #define E_NO_SPACE            1
 #define E_CORRUPT_FREESPACE   2
 #define E_PADDING_OVERWRITTEN 3
 #define E_BAD_ARGS            4
 #define E_BAD_POINTER         5
 
-/*Memory allocation styles*/
+/* Memory allocation styles */
 #define M_BESTFIT   0
 #define M_WORSTFIT  1
 #define M_FIRSTFIT  2
 
-/*Memory error variable*/
+/* Memory error variable */
 int m_error;
 
-/*Memory block structure*/
+/* Memory block structure */
 struct mem_block {
     size_t size;
     struct mem_block *next;
 };
 
-/*Global variables*/
+/* Global variables */
 static struct mem_block *free_list = NULL;
 
-/*Memory initialization function*/
+/* Memory initialization function */
 int mem_init(int size_of_region) {
     if (size_of_region <= 0) {
         m_error = E_BAD_ARGS;
         return -1;
     }
 
-    /*Round up size_of_region to page size*/
+    /* Round up size_of_region to page size */
     int page_size = getpagesize();
     int num_pages = (size_of_region + page_size - 1) / page_size;
     size_of_region = num_pages * page_size;
@@ -52,7 +52,7 @@ int mem_init(int size_of_region) {
     return 0;
 }
 
-/*Memory allocation function*/
+/* Memory allocation function */
 void *mem_alloc(int size, int style) {
     if (size <= 0) {
         m_error = E_BAD_ARGS;
@@ -64,13 +64,10 @@ void *mem_alloc(int size, int style) {
     struct mem_block *best_block = NULL;
 
     while (curr != NULL) {
-        if (curr->size >= size) {
-            if (best_block == NULL || (style == M_BESTFIT && curr->size < best_block->size) ||
-                (style == M_WORSTFIT && curr->size > best_block->size)) {
-                best_block = curr;
-                if (style == M_FIRSTFIT) {
-                    break;
-                }
+        if (curr->size >= size && (best_block == NULL || (style == M_BESTFIT && curr->size < best_block->size) || (style == M_WORSTFIT && curr->size > best_block->size))) {
+            best_block = curr;
+            if (style == M_FIRSTFIT) {
+                break;
             }
         }
         prev = curr;
@@ -90,15 +87,15 @@ void *mem_alloc(int size, int style) {
     }
 
     if (prev != NULL) {
-        prev->next = best_block->next;
+        prev->next = (void *)((uintptr_t)best_block + size + sizeof(struct mem_block));
     } else {
-        free_list = best_block->next;
+        free_list = (void *)((uintptr_t)best_block + size + sizeof(struct mem_block));
     }
 
     return (void *)((uintptr_t)best_block + sizeof(struct mem_block));
 }
 
-/*Memory free function*/
+/* Memory free function */
 int mem_free(void *ptr) {
     if (ptr == NULL) {
         return 0;
@@ -124,7 +121,7 @@ int mem_free(void *ptr) {
     return 0;
 }
 
-/*Memory dump function*/
+/* Memory dump function */
 void mem_dump() {
     printf("Memory dump after allocation:\n");
     struct mem_block *curr = free_list;
@@ -132,43 +129,27 @@ void mem_dump() {
         printf("[size: %zu bytes]\n", curr->size);
         curr = curr->next;
     }
-
-    printf("Free memory dump after freeing ptr1:\n");
-    curr = free_list;
-    while (curr != NULL) {
-        printf("[size: %zu bytes]\n", curr->size);
-        curr = curr->next;
-    }
-
-    printf("Final memory dump:\n");
-    curr = free_list;
-    while (curr != NULL) {
-        printf("[size: %zu bytes]\n", curr->size);
-        curr = curr->next;
-    }
 }
 
-
-
 int main() {
-    /*Initialize memory allocator*/
-    int init_result = mem_init(4096); /*Initialize with 4KB of memory*/
+    /* Initialize memory allocator */
+    int init_result = mem_init(4096); /* Initialize with 4KB of memory */
     if (init_result == -1) {
         printf("Memory initialization failed\n");
         return 1;
     }
 
-    /*Allocate memory*/
+    /* Allocate memory */
     void *ptr1 = mem_alloc(16, M_FIRSTFIT);
     if (ptr1 == NULL) {
         printf("Memory allocation failed\n");
         return 1;
     }
 
-    /*Free memory*/
+    /* Free memory */
     mem_free(ptr1);
 
-    /*Dump memory*/
+    /* Dump memory */
     mem_dump();
 
     return 0;
